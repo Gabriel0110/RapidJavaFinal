@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <h:head>
+        <link type="text/css" rel="stylesheet" href="/CheckExercise/faces/javax.faces.resource/theme.css?ln=primefaces-aristo" />
+        <script type="text/javascript" src="/CheckExercise/faces/javax.faces.resource/jsf.js;jsessionid=c8fb1592f888a3d45a161229ab23?ln=javax.faces"></script>
+        <title>Rapid Group Project</title>
+
+        <style>
+            .header {
+                text-align: center;
+                font-family: arial;
+                background-color: goldenrod; color: white; 
+                /*          background-color: #6193cb; color: white; font-size: 96%;*/
+                border-bottom: 2px solid gray; border-right: 2px solid gray;
+                left: 28px;  font-size: 100%; font-weight: bold;
+                font-family: Verdana, Helvetica, sans-serif;
+                width:575px;
+                /*          height: 210px;*/
+                padding: 3px;
+                margin-top:0px;
+                margin-bottom: 0px; 
+                top: 30px;
+                left: 20px;
+            }
+
+            .gradingStatusStyle {
+                font-family: times; font-weight: bold; font-color: gold;
+                margin-left: 48px;  font-size: 96%; 
+                width:575px;
+            }
+
+            .messageStyle {
+                text-align: center;
+                font-family: times;
+                font-size: 96%; 
+                font-family: Verdana, Helvetica, sans-serif;
+                width:575px;
+            }
+        </style>
+
+        <script type="text/javascript" src="//code.jquery.com/jquery-2.0.2.js"></script>
+        <script type="text/javascript" src="https://liveexample.pearsoncmg.com/ace2/src/ace.js"></script>
+        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" />
+
+        <style type="text/css">
+            #editor {
+                /** Setting height is also important, otherwise editor wont showup**/
+                height: 175px;
+            }
+        </style>
+
+        <style type="text/css">
+            #editor {
+                /** Setting height is also important, otherwise editor wont showup**/
+                height: 175px;
+                /*          font-family: monaco, monospace, courier;*/
+            }
+
+            .kwd { color: #008008 }  /* keyword */
+            .com { color: #800800;  }  /* comment */
+            /*      .com { color: #800800; background: #d1e0f0; }   comment */
+            .lit { color: #066066 }  /* literal value */
+            .str { color: #080080 } /* string */
+            .typ, .pun, .opn, .clo, .tag, .atn, .atv, .dec, .var, .fun { color: #000;} /* rest of the classes*/	
+
+            .ace-chrome .ace_keyword {
+                color: #000fd6 !important; 
+                font-weight: bold;
+            }
+
+            .ace_keyword.ace_operator {
+                color: black !important;
+            }
+
+            .ace_comment {
+                color: #005500 !important; 
+            }
+
+            .ace_constant {
+                color: #007d9f !important;
+            }
+
+            .ace_string {
+                color: #007d9f !important;
+            }
+
+        </style>
+
+        <script type="text/javascript">
+            $(function () {
+                var textarea = $('#jsfForm\\:sourceInputTextarea');
+
+                var editor = ace.edit("editor");
+                editor.setTheme("ace/theme/chrome");
+                editor.getSession().setMode("ace/mode/java");
+                editor.getSession().setTabSize(2);
+
+                editor.getSession().on('change', function () {
+                    textarea.val(editor.getSession().getValue());
+                });
+
+                //document.getElementById("hiddenText").value = textarea.val(editor.getSession().getValue());
+                textarea.val(editor.getSession().getValue());
+
+                // Editor for result, just for display
+                var editorForResult = ace.edit("editorForResult");
+                editorForResult.setTheme("ace/theme/chrome");
+                editorForResult.getSession().setMode("ace/mode/c");
+                editorForResult.renderer.setShowGutter(false);
+                editorForResult.setReadOnly(true);
+                //            editorForResult.getSession().setUseWrapMode(true);
+            });
+        </script>
+        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+        <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-89940905-27"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments)
+            }
+            ;
+            gtag('js', new Date());
+            gtag('config', 'UA-89940905-27');
+        </script>
+
+        <script type="text/javascript" src="https://liveexample.pearsoncmg.com/logging.js"></script>
+    </h:head>
+    <h:body style="width:100%; margin-right: 0 auto;">
+        <h:form id="jsfForm" enctype="application/x-www-form-urlencoded" style="margin: 0.5em; margin-bottom: 0.0em;">
+            <table id="jsfForm:bigPanel" style="width:100%; margin-right: 0 auto;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label id="jsfForm:header1" style="width:100%; margin-right: 0 auto;" class="header">CheckExercise: #{checkBean.getExercise()}</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table style="margin-top: 1px; padding: 2px; width:575px; background-color: white; border: 1px solid #f6912f; font-weight: bold; font-size: 96%; width:100%; margin: 0 auto;">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <table style="margin-top: 1px; padding: 2px; width:575px; background-color: white; border: 1px  #f6912f; font-weight: bold; font-size: 96%; width:600px; margin: 0 auto;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <label>Choose a Chapter: </label>
+                                                        </td>
+                                                        <td>
+                                                            <h:selectOneMenu id="chapters" value="#{checkBean.chapter}" valueChangeListener="#{checkBean.changeNameListener}" onchange="submit()">
+                                                                <f:selectItems value="#{checkBean.chapterList}"/>
+                                                            </h:selectOneMenu>
+                                                        </td>
+                                                        <td>
+                                                            <label>Choose an Exercise: </label>
+                                                        </td>
+                                                        <td>
+                                                            <h:selectOneMenu id="exercises" value="#{checkBean.exercise}" valueChangeListener="#{checkBean.changeExerciseListener}">
+                                                                <f:selectItems value="#{checkBean.exerciseList}"/>
+                                                            </h:selectOneMenu>
+                                                        </td>
+                                                        <td>
+                                                            <h:commandButton type="submit" value="Set Exercise" action="#{checkBean.hasNoOutput()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary">
+                                                            </h:commandButton>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- MAIN INPUT BOX FOR CODE -->
+                    <tr>
+                        <td>
+
+                            <div id="editor" style="width:575px; font-weight: normal; margin-top: 1px;height:177px; background-color: white; border: 1px solid #f6912f; font-size: 96%;height:257px;;               width:100%; margin: 0 auto;">
+                                #{checkBean.description}
+                            </div>
+
+                            <div id="inputLabel"></div>
+                        </td>
+                    </tr>
+
+
+                    <!-- INPUT BOX FOR PARAMETERS -->
+                    <tr>
+                        <td><label style="font-weight: bold; font-family: times; width:100%; margin: 0 auto;">Enter input data for the program (Sample data provided below. You may modify it.)</label></td>
+                    </tr>
+                    <tr>
+                        <td><textarea id="dataInputTextarea" name="jsfForm:dataInputTextarea" style="font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono,                           Courier New, monospace, serif, monospace !important; width:575px;                           height:40px; background-color: white; border: 1px solid #f6912f;                           font-weight: normal; font-size: 96%; margin-top: 0px;                          width:100%; margin: 0 auto;"></textarea></td>
+                    </tr>
+
+
+                    <!-- SUBMIT AND AUTOMATIC CHECK BUTTONS -->
+                    <tr>
+                        <td>
+                            <span style="margin-top:0px; width:100%; margin: 0 auto;">
+                                <h:commandButton type="submit" value="Compile/Run" action="#{checkBean.compile()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary"> 
+                                    <f:actionListener binding="#{checkBean.hasOutput()}" />
+                                </h:commandButton>
+                                <input type="submit" name="jsfForm:j_idt23" value="Automatic Check" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary" /><label style="width:300px;" class="gradingStatusStyle"></label>
+                                <!--                                        &lt;span&gt; (Note: Clicking &lt;span style = "font-style: italic"&gt;Compile/Run&lt;/span&gt; for selftesting. 
+                                                        Clicking &lt;span style ="font-style: italic"&gt;Automatic Grade&lt;/span&gt; will submit your program to a database.)
+                                                    &lt;/span&gt;-->
+                            </span>
+                        </td>
+                    </tr>
+
+                    <!-- OUTPUT BOX AFTER PRESSING SUBMIT -->
+                    <tr>
+                        <td>
+                            <c:choose>
+                                <c:when test="#{checkBean.isOutput == true}">
+                                    <h:outputText value="#{checkBean.getResultBox()}" escape="false"/>
+                                </c:when>
+                            </c:choose>
+                        </td>
+                    </tr>
+
+                    
+                    
+                    <!-- RESULT BOX -->
+                    <!--
+                    <tr>
+                        <td>
+                            <div id="editorForResult" style="text-align: left; width:575px; height:181px; font-weight: normal; font-size: 96%; color: black; background-color: white; border: 1px solid; border-color: #f6912f;height:147px;; width:100%; margin: 0 auto;">command&gt;javac Exercise01_01.java
+                                Compiled successful
+
+                                command&gt;java Exercise01_01
+                                Error: Could not find or load main class Exercise01_01
+
+                                command&gt;
+                            </div>
+                        </td>
+                    </tr>
+                    -->
+
+
+                    <tr>
+                        <td>
+
+                            <!--        &lt;h:inputTextarea id="resultInputText" disabled="true"
+                                                     style="text-align: left; font-family: courier; width:628px; height:181px; font-weight: bold;
+                                                     font-size: 90%; color: black; background-color: white; border: 1px solid; border-color: #f6912f;" 
+                                                     value="&lt;div&gt;&lt;span style='font-style:bold;color:#e31c3d'&gt;We recommend that you use this tool to test the code. If your code is wrong, the tool will display your output and the correct output so to help you debug the error.&lt;/span&gt; Compile/Run is provided for your convenience to compile and run the code. 
+                    The extra exercises are available for instructors. Email y.daniel.liang@gmail.com 
+                    to request a copy of the extra exercises.&lt;/div&gt;"/&gt;--></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span style="text-align: left; width:575px;  max-width:575px; font-weight: normal; font-size: 96%; color: black; background-color: white; padding-left:5px; ; padding-top: -20px; width:100%; margin: 0 auto;"><span style="width:100%; margin: 0 auto; height: 500px;"><div style = 'width:575px; margin-top:-10px; width:100%; margin: 0 auto;'><div><span style='font-style:bold;color:#e31c3d'>We recommend that you use this tool to test the code. If your code is wrong, the tool will display your output and the correct output so to help you debug the error.</span> Compile/Run is provided for your convenience to compile and run the code. 
+                                            The extra exercises are available for instructors. Email y.daniel.liang@gmail.com 
+                                            to request a copy of the extra exercises.</div></div></span>
+
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="messageStyle" style="width:100%; margin: 0 auto;">Please report errors to <a href="mailto:y.daniel.liang@gmail.com" style="text-decoration: none; color: green">Dr. Liang</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            
+                            <h:inputText id="sourceInputTextarea" value="#{checkBean.textArea}" style="font-family: courier; font-weight: bold; margin-top: 0px; height:100px; background-color: white; border: 0px solid #f6912f; font-size: 96%; overflow:hidden; resize:none;  margin: 0 auto;">
+                            </h:inputText>
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </h:form>
+    </h:body>
+</html>
