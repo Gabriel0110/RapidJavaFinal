@@ -166,6 +166,7 @@
                                                         </td>
                                                         <td>
                                                             <h:commandButton type="submit" value="Set Exercise" action="#{checkBean.hasNoOutput()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary">
+                                                                <f:actionListener binding="#{checkBean.hasInput()}" />
                                                             </h:commandButton>
                                                         </td>
                                                     </tr>
@@ -191,14 +192,33 @@
                     </tr>
 
 
+                    
                     <!-- INPUT BOX FOR PARAMETERS -->
                     <tr>
-                        <td><label style="font-weight: bold; font-family: times; width:100%; margin: 0 auto;">Enter input data for the program (Sample data provided below. You may modify it.)</label></td>
+                        <td>
+                            <c:choose>
+                                <c:when test="#{checkBean.isInput == true}">
+                                    <h:outputText value="#{checkBean.getLabel()}" escape="false"/>
+                                </c:when>
+                            </c:choose>
+                        </td>
                     </tr>
+                    
+                    <tr>
+                        <td>
+                            <c:choose>
+                                <c:when test="#{checkBean.isInput == true}">
+                                    <h:outputText value="#{checkBean.getInputBox()}" escape="false"/>
+                                </c:when>
+                            </c:choose>
+                        </td>
+                    </tr>
+
+                    <!--
                     <tr>
                         <td><textarea id="dataInputTextarea" name="jsfForm:dataInputTextarea" style="font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono,                           Courier New, monospace, serif, monospace !important; width:575px;                           height:40px; background-color: white; border: 1px solid #f6912f;                           font-weight: normal; font-size: 96%; margin-top: 0px;                          width:100%; margin: 0 auto;"></textarea></td>
                     </tr>
-
+                    -->
 
                     <!-- SUBMIT AND AUTOMATIC CHECK BUTTONS -->
                     <tr>
