@@ -21,7 +21,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -31,6 +34,12 @@ import java.nio.file.Paths;
 @ApplicationScoped
 public class checkBean implements Serializable {
 
+    String inptText;
+    boolean isCompile;
+    boolean isAutoCheck;
+    int ifdif;
+    boolean autoCheck;
+    //Output output;
     String content;
     String textArea;
     String resultBox;
@@ -63,6 +72,9 @@ public class checkBean implements Serializable {
         chapterList = new ArrayList<>();
         isInput = false;
         isOutput = false;
+        autoCheck = false;
+        isCompile = false;
+        isAutoCheck = false;
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\ChapterList.txt"));
@@ -152,6 +164,13 @@ public class checkBean implements Serializable {
         String ch = chapter.replaceAll("[a-zA-Z\\s]", "");
         String ex = exercise.substring(exercise.length() - 2, exercise.length()).replaceAll("[a-zA-Z\\s]", "");
 
+        File crctOutput = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + ".correctoutput");
+        File crctOutputA = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "a" + ".correctoutput");
+
+//        if (!crctOutput.exists() && !crctOutputA.exists()) {
+//            return "/* This exercise cannot be graded automatically becuase it may use random "
+//                    + " numbers, file input/output, or graphics. */";
+//        } else {
         if (exercise.contains("Extra")) {
             ex = exercise.substring(exercise.length() - 7, exercise.length() - 5).replaceAll("[a-zA-Z\\s]", "");
         }
@@ -195,6 +214,7 @@ public class checkBean implements Serializable {
                 + "If you get a java.util.InputMismatchException error, check if\n "
                 + "your code used input.readInt(), but it should be input.readDouble().\n "
                 + "For integers, use int unless it is explicitly stated as long. */ ";
+
     }
 
     public void setDescription(String description) {
@@ -333,6 +353,8 @@ public class checkBean implements Serializable {
     public void compile() throws IOException {
         createFile();
         File str = new File("C:\\book\\" + exercise + ".class");
+        File inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+        createInputFile();
 
         Output output = compileProgram("javac",
                 "C:\\book", exercise + ".java");
@@ -340,32 +362,70 @@ public class checkBean implements Serializable {
         System.out.println("Result: " + output.output);
 
         if (str.exists()) {
-            // RUN WITHOUT INPUT //
-            output = executeProgram("java", exercise,
-                    "C:\\book", null, "C:\\book\\" + exercise + ".output");
+            if (inputFile.exists()) {
+                if (isCompile == true) {
+                    // RUN WITH INPUT //
+                    output = executeProgram("java", exercise,
+                            "C:\\book", "C:\\book\\" + exercise + ".input",
+                            "C:\\book\\" + exercise + ".output");
+                    setTextArea(getOutputResults());
+                } else if (isAutoCheck == true) {
+                    // RUN WITH INPUT //
+                    output = executeProgram("java", exercise,
+                            "C:\\book", inputFile.toString(),
+                            "C:\\book\\" + exercise + ".output");
+                    setTextArea(getOutputResults());
+                }
+            } else {
+                // RUN WITHOUT INPUT //
+                output = executeProgram("java", exercise,
+                        "C:\\book", null, "C:\\book\\" + exercise + ".output");
+                setTextArea(getOutputResults());
+            }
         } else {
-            setTextArea(output.error);
+            setTextArea(getOutputResults());
         }
+        usingCompileFalse();
+        usingAutoCheckFalse();
+    }
 
-        // RUN WITH INPUT //
-//        output = executeProgram("java", exercise,
-//                "C:\\book", inputFromInputBox,
-//                "C:\\book\\" + exercise + ".output");
-//
-//        System.out.println(output.error);
-//
-//        System.out.println("Result: " + output.output);
-        // now you would get the contents of the output file and send it to the textarea for displaying
+    public void createInputFile() throws IOException {
+        File file = new File("C:\\book\\" + exercise + ".input");
+        FileWriter fileWriter = new FileWriter(file);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        printWriter.print(inptText);
+        printWriter.close();
     }
 
     public void createFile() throws IOException {
-        //Files.delete(C:\\book\\" + exercise + ".java);
+        File classFile = new File("C:\\book\\" + exercise + ".class");
+        if (classFile.exists()) {
+            classFile.delete();
+        }
 
         File file = new File("C:\\book\\" + exercise + ".java");
         FileWriter fileWriter = new FileWriter(file);
         PrintWriter printWriter = new PrintWriter(fileWriter);
         printWriter.print(textArea);
         printWriter.close();
+
+        Path path = Paths.get("C:\\book\\" + exercise + ".java");
+        Stream<String> lines = Files.lines(path);
+        List<String> replaced = lines.map(line -> line.replaceAll("  ", "\r\n")).collect(Collectors.toList());
+        Files.write(path, replaced);
+        lines.close();
+
+        path = Paths.get("C:\\book\\" + exercise + ".java");
+        lines = Files.lines(path);
+        replaced = lines.map(line -> line.replaceAll("public", "\r\npublic")).collect(Collectors.toList());
+        Files.write(path, replaced);
+        lines.close();
+
+//        path = Paths.get("C:\\book\\" + exercise + ".java");
+//        lines = Files.lines(path);
+//        replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText)).collect(Collectors.toList());
+//        Files.write(path, replaced);
+//        lines.close();
     }
 
     static String readFile(String path)
@@ -414,20 +474,17 @@ public class checkBean implements Serializable {
     }
 
     public String getResultBox() throws IOException {
-        return "<div id=\"editorForResult\" style=\"text-align: left; width:575px; height:181px; font-weight: normal; font-size: 96%; color: black; background-color: white; border: 1px solid; border-color: #f6912f;height:147px;; width:100%; margin: 0 auto;\">"
+        return "<div id=\"editorForResult\" style=\"text-align: left; display: inline-block; width:575px; height:181px; font-weight: normal; font-size: 96%; color: black; background-color: white; border: 1px solid; border-color: #f6912f;height:147px;; width:100%; margin: 0 auto;\">"
                 + "command&gt;javac " + exercise + ".java\n"
                 + "Compiled successful\n"
                 + "\n"
-                + "command&gt;java " + exercise + "\n" + textArea
-                + "\n"
-                + "command&gt;\n"
+                + "command&gt;java " + exercise + "\n" + getTextArea()
                 + "</div>";
     }
 
-    public String getInputBox() throws IOException {
-        return "<textarea id=\"dataInputTextarea\" name=\"jsfForm:dataInputTextarea\" style=\"font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif, monospace !important; width:575px; height:40px; background-color: white; border: 1px solid #f6912f; font-weight: normal; font-size: 96%; margin-top: 0px; width:100%; margin: 0 auto;\">" + getInputText() + "</textarea>";
-    }
-
+//    public String getInputBox() throws IOException {
+//        return "<textarea id=\"dataInputTextarea\" name=\"jsfForm:dataInputTextarea\" style=\"font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif, monospace !important; width:575px; height:40px; background-color: white; border: 1px solid #f6912f; font-weight: normal; font-size: 96%; margin-top: 0px; width:100%; margin: 0 auto;\">" + getInputText() + "</textarea>";
+//    }
     public String getTextArea() {
         return textArea;
     }
@@ -441,8 +498,227 @@ public class checkBean implements Serializable {
     }
 
     public String getInputText() throws FileNotFoundException, IOException {
-        String str = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+        File inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+
+        if (inputFile.exists()) {
+            String str = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+
+            return str;
+        }
+        return null;
+    }
+
+    public String getOutputResults() throws FileNotFoundException, IOException {
+        File outputFile = new File("C:\\book\\" + exercise + ".output");
+        String str = "";
+        if (outputFile.exists() && !exercise.contains("Exercise01")) {
+            if (textArea.contains("nextInt()")) {
+                Path path = Paths.get("C:\\book\\" + exercise + ".output");
+                Stream<String> lines = Files.lines(path);
+                List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
+                Files.write(path, replaced);
+                lines.close();
+
+            } else {
+                if (inptText.contains(".")) {
+                    Path path = Paths.get("C:\\book\\" + exercise + ".output");
+                    Stream<String> lines = Files.lines(path);
+                    List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
+                    Files.write(path, replaced);
+                    lines.close();
+
+                } else {
+                    Path path = Paths.get("C:\\book\\" + exercise + ".output");
+                    Stream<String> lines = Files.lines(path);
+                    List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + ".0" + "\r\n")).collect(Collectors.toList());
+                    Files.write(path, replaced);
+                    lines.close();
+
+                }
+            }
+
+        } else {
+            if (outputFile.exists()) {
+                str = readFile("C:\\book\\" + exercise + ".output");
+                File file = new File("C:\\book\\" + exercise + ".input");
+                FileWriter fileWriter = new FileWriter(file);
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.print(str);
+                printWriter.close();
+                return str;
+            } else {
+                return "Cannot find class file.";
+            }
+        }
+        return "Error: Cannot find class file";
+    }
+
+    public String getCorrectOutput(File file) throws FileNotFoundException, IOException {
+        String text = readFileAsString(file);
+        //text = text.replace("\r\n", " ").replace("\n", " ");
+
+        return text;
+    }
+
+    public String readFileAsString(File file) throws IOException {
+        String str = readFile(file.getAbsolutePath());
+        str = str.replace("\r\n", " ").replace("\n", " ");
         return str;
     }
 
+    public void autoCheck() throws IOException {
+        compile();
+
+        File classFile = new File("C:\\book\\" + exercise + ".class");
+        File crctOutput = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + ".correctoutput");
+        File crctOutputA = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "a" + ".correctoutput");
+        File crctOutputB = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "b" + ".correctoutput");
+        File outputFile = new File("C:\\book\\" + exercise + ".output");
+
+        if (outputFile.exists()) {
+            String userOutput = readFile("C:\\book\\" + exercise + ".output");
+            userOutput = userOutput.replace("\r\n", " ").replace("\n", " ");
+            if (crctOutput.exists()) {
+                //String correctOutput = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + ".correctoutput");
+                ifdif = indexOfDifference(getCorrectOutput(crctOutput), userOutput);
+            } else if (crctOutputA.exists()) {
+                //String correctOutputA = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "a" + ".correctoutput");
+                ifdif = indexOfDifference(getCorrectOutput(crctOutputA), userOutput);
+            } else if (crctOutputB.exists()) {
+                //String correctOutputB = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "b" + ".correctoutput");
+                ifdif = indexOfDifference(getCorrectOutput(crctOutputB), userOutput);
+            }
+        } else {
+            setTextArea("No output file found -- no class file was created to be executed!");
+        }
+
+        //int ifdif = indexOfDifference(correctOutput, userOutput);
+        //System.out.println(ifdif);
+//        StringBuilder sb = new StringBuilder(userOutput.substring(0, ifdif - 1));
+//        sb.append(userOutput.substring(ifdif, ifdif + 1));
+//        sb.append(userOutput.substring(ifdif + 1, userOutput.length()));
+        if (classFile.exists()) {
+            if (ifdif == -1) {
+                setTextArea("That output is correct!");
+            } else {
+                if (crctOutput.exists()) {
+                    String correctOutput = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + ".correctoutput");
+                    setTextArea(
+                            "INCORRECT\n\n"
+                            + "Your output:\n"
+                            + getOutputResults() + "\n"
+                            + "Expected output:\n"
+                            + correctOutput
+                    );
+                } else if (crctOutputA.exists()) {
+                    String correctOutputA = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "a" + ".correctoutput");
+                    setTextArea(
+                            "INCORRECT\n\n"
+                            + "Your output:\n"
+                            + getOutputResults() + "\n"
+                            + "Expected output:\n"
+                            + correctOutputA
+                    );
+                } else if (crctOutputB.exists()) {
+                    String correctOutputB = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "b" + ".correctoutput");
+                    setTextArea(
+                            "INCORRECT\n\n"
+                            + "Your output:\n"
+                            + getOutputResults() + "\n"
+                            + "Expected output:\n"
+                            + correctOutputB
+                    );
+                }
+            }
+        } else {
+            setTextArea(getOutputResults());
+        }
+    }
+
+    public static String difference(String str1, String str2) {
+        if (str1 == null) {
+            return str2;
+        }
+        if (str2 == null) {
+            return str1;
+        }
+        int at = indexOfDifference(str1, str2);
+        if (at == -1) {
+            return "";
+        }
+
+        return str2.substring(at);
+    }
+
+    public static int indexOfDifference(String str1, String str2) {
+        if (str1 == str2) {
+            return -1;
+        }
+        if (str1 == null || str2 == null) {
+            return 0;
+        }
+        int i;
+        for (i = 0; i < str1.length() && i < str2.length(); ++i) {
+            if (str1.charAt(i) != str2.charAt(i)) {
+                break;
+            }
+        }
+        if (i < str2.length() || i < str1.length()) {
+            return i;
+        }
+        return -1;
+    }
+
+    public void inputToFalse() {
+        setIsInput(false);
+        //isInput = false;
+    }
+
+    public void autoCheckTrue() {
+        autoCheck = true;
+    }
+
+    public void autoCheckFalse() {
+        autoCheck = false;
+    }
+
+    public boolean isAutoCheck() {
+        return autoCheck;
+    }
+
+    public String getAutoResults() {
+        return "<span style=\"text-align: left; width:575px;  max-width:575px; font-weight: normal; font-size: 96%; color: black; background-color: white; padding-left:5px; ; padding-top: -20px; width:100%; margin: 0 auto;\"><span style=\"width:100%; margin: 0 auto; height: 500px;\"><div style = 'width:575px; margin-top:-10px; width:100%; margin: 0 auto;'>Your program is incorrect. <br /><br /><span style = 'background-color:#e31c3d; color:white'>Your Output</span><br /><pre>Error: Could not find or load main class Exercise01_02\n"
+                + "</pre><span style = 'background-color:#e31c3d; color:white'>The Correct Output</span><br /><pre>Welcome to Java\n"
+                + "Welcome to Java\n"
+                + "Welcome to Java\n"
+                + "Welcome to Java\n"
+                + "Welcome to Java\n"
+                + "</pre></div></span></span>";
+    }
+
+    public void usingCompileFalse() {
+        isCompile = false;
+    }
+
+    public void usingAutoCheckFalse() {
+        isAutoCheck = false;
+    }
+
+    public void usingCompile() throws IOException {
+        isCompile = true;
+        compile();
+    }
+
+    public void usingAutoCheck() throws IOException {
+        isAutoCheck = true;
+        autoCheck();
+    }
+
+    public String getInptText() {
+        return inptText;
+    }
+
+    public void setInptText(String inptText) {
+        this.inptText = inptText;
+    }
 }
