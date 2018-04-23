@@ -132,11 +132,11 @@
     </h:head>
     <h:body style="width:100%; margin-right: 0 auto;">
         <h:form id="jsfForm" enctype="application/x-www-form-urlencoded" style="margin: 0.5em; margin-bottom: 0.0em;">
-            <table id="jsfForm:bigPanel" style="width:100%; margin-right: 0 auto;">
+            <table id="bigPanel" style="width:100%; margin-right: 0 auto;">
                 <tbody>
                     <tr>
                         <td>
-                            <label id="jsfForm:header1" style="width:100%; margin-right: 0 auto;" class="header">CheckExercise: #{checkBean.getExercise()}</label>
+                            <label id="header1" style="width:100%; margin-right: 0 auto;" class="header">CheckExercise: #{checkBean.getExercise()}</label>
                         </td>
                     </tr>
                     <tr>
@@ -191,7 +191,6 @@
                         </td>
                     </tr>
 
-
                     
                     <!-- INPUT BOX FOR PARAMETERS -->
                     <tr>
@@ -208,7 +207,8 @@
                         <td>
                             <c:choose>
                                 <c:when test="#{checkBean.isInput == true}">
-                                    <h:outputText value="#{checkBean.getInputBox()}" escape="false"/>
+                                    <h:inputTextarea id="editor2" value="#{checkBean.inptText}" style="font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif, monospace !important; width:575px; height:40px; background-color: white; border: 1px solid #f6912f; font-weight: normal; font-size: 96%; margin-top: 0px; width:100%; margin: 0 auto;">
+                                    </h:inputTextarea>
                                 </c:when>
                             </c:choose>
                         </td>
@@ -224,13 +224,14 @@
                     <tr>
                         <td>
                             <span style="margin-top:0px; width:100%; margin: 0 auto;">
-                                <h:commandButton type="submit" value="Compile/Run" action="#{checkBean.compile()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary"> 
+                                <h:commandButton type="submit" value="Compile/Run" action="#{checkBean.usingCompile()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary"> 
                                     <f:actionListener binding="#{checkBean.hasOutput()}" />
                                 </h:commandButton>
-                                <input type="submit" name="jsfForm:j_idt23" value="Automatic Check" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary" /><label style="width:300px;" class="gradingStatusStyle"></label>
-                                <!--                                        &lt;span&gt; (Note: Clicking &lt;span style = "font-style: italic"&gt;Compile/Run&lt;/span&gt; for selftesting. 
-                                                        Clicking &lt;span style ="font-style: italic"&gt;Automatic Grade&lt;/span&gt; will submit your program to a database.)
-                                                    &lt;/span&gt;-->
+                                <h:commandButton type="submit" value="Automatic Check" action="#{checkBean.usingAutoCheck()}" style="font-style: normal; font-weight: normal; font-size: 100%" class="btn btn-sm btn-primary">
+                                    <f:actionListener binding="#{checkBean.hasOutput()}" />
+                                </h:commandButton>
+                                <label style="width:300px;" class="gradingStatusStyle"></label>
+                                
                             </span>
                         </td>
                     </tr>
@@ -246,24 +247,6 @@
                         </td>
                     </tr>
 
-                    
-                    
-                    <!-- RESULT BOX -->
-                    <!--
-                    <tr>
-                        <td>
-                            <div id="editorForResult" style="text-align: left; width:575px; height:181px; font-weight: normal; font-size: 96%; color: black; background-color: white; border: 1px solid; border-color: #f6912f;height:147px;; width:100%; margin: 0 auto;">command&gt;javac Exercise01_01.java
-                                Compiled successful
-
-                                command&gt;java Exercise01_01
-                                Error: Could not find or load main class Exercise01_01
-
-                                command&gt;
-                            </div>
-                        </td>
-                    </tr>
-                    -->
-
 
                     <tr>
                         <td>
@@ -278,7 +261,7 @@
                     <tr>
                         <td>
                             <span style="text-align: left; width:575px;  max-width:575px; font-weight: normal; font-size: 96%; color: black; background-color: white; padding-left:5px; ; padding-top: -20px; width:100%; margin: 0 auto;"><span style="width:100%; margin: 0 auto; height: 500px;"><div style = 'width:575px; margin-top:-10px; width:100%; margin: 0 auto;'><div><span style='font-style:bold;color:#e31c3d'>We recommend that you use this tool to test the code. If your code is wrong, the tool will display your output and the correct output so to help you debug the error.</span> Compile/Run is provided for your convenience to compile and run the code. 
-                                            The extra exercises are available for instructors. Email y.daniel.liang@gmail.com 
+                                            The extra exercises are available for instructors. Email <a href="mailto:y.daniel.liang@gmail.com" style="text-decoration: none; color: green">y.daniel.liang@gmail.com</a> 
                                             to request a copy of the extra exercises.</div></div></span>
 
                             </span>
@@ -286,15 +269,15 @@
                     </tr>
                     <tr>
                         <td>
-                            <div class="messageStyle" style="width:100%; margin: 0 auto;">Please report errors to <a href="mailto:y.daniel.liang@gmail.com" style="text-decoration: none; color: green">Dr. Liang</a>
+                            <div class="messageStyle" style="width:100%; margin: 0 auto;">Please report errors to <a href="mailto:gabrieltomberlin14@gmail.com" style="text-decoration: none; color: green">Gabriel Tomberlin</a> or <a href="mailto:brett.exley92@gmail.com" style="text-decoration: none; color: green">Brett Exley</a>
                             </div>
                         </td>
                     </tr>
                     <tr>
                         <td>
                             
-                            <h:inputText id="sourceInputTextarea" value="#{checkBean.textArea}" style="font-family: courier; font-weight: bold; margin-top: 0px; height:100px; background-color: white; border: 0px solid #f6912f; font-size: 96%; overflow:hidden; resize:none;  margin: 0 auto;">
-                            </h:inputText>
+                            <h:inputTextarea id="sourceInputTextarea" value="#{checkBean.textArea}" style="font-family: courier; font-weight: bold; margin-top: 0px; height:0px; background-color: white; border: 0px solid #f6912f; font-size: 96%; overflow:hidden; resize:none;  margin: 0 auto;">
+                            </h:inputTextarea>
                             
                         </td>
                     </tr>
