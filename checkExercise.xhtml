@@ -99,6 +99,8 @@
                 editor.setTheme("ace/theme/chrome");
                 editor.getSession().setMode("ace/mode/java");
                 editor.getSession().setTabSize(2);
+                
+                document.getElementById("editor2").value = #{checkBean.getInputText()}
 
                 editor.getSession().on('change', function () {
                     textarea.val(editor.getSession().getValue());
