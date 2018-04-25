@@ -368,8 +368,7 @@ public class checkBean implements Serializable {
 
         output = compileProgram("javac",
                 "C:\\book", "C:\\book\\" + exercise + ".java");
-        System.out.println(output.error);
-        System.out.println("Result: " + output.output);
+
 
         if (str.exists()) {
             if (!exercise.contains("Exercise01")) {
@@ -380,9 +379,10 @@ public class checkBean implements Serializable {
                             "C:\\book\\" + exercise + ".output");
                     setTextArea(getOutputResults());
                 } else if (isAutoCheck == true) {
+                    String input = ("C:\\book\\" + exercise + ".input");
                     // RUN WITH INPUT //
                     output = executeProgram("java", exercise,
-                            "C:\\book", getInputText(),
+                            "C:\\book", input,
                             "C:\\book\\" + exercise + ".output");
                     setTextArea(getOutputResults());
                 }
@@ -393,7 +393,7 @@ public class checkBean implements Serializable {
                             "C:\\book", null, "C:\\book\\" + exercise + ".output");
                     setTextArea(getOutputResults());
                 } else if (isAutoCheck == true) {
-                    // RUN WITH INPUT //
+                    // RUN WITHOUT INPUT //
                     output = executeProgram("java", exercise,
                             "C:\\book", null,
                             "C:\\book\\" + exercise + ".output");
@@ -519,13 +519,14 @@ public class checkBean implements Serializable {
 
     public String getInputText() throws FileNotFoundException, IOException {
         inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+        String str = "test";
 
         if (inputFile.exists()) {
-            String str = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+            str = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
 
             return str;
         }
-        return null;
+        return str;
     }
 
     public String getOutputResults() throws FileNotFoundException, IOException {
@@ -533,11 +534,11 @@ public class checkBean implements Serializable {
         String str = "";
         if (outputFile.exists() && !exercise.contains("Exercise01")) {
             if (textArea.contains("nextInt()")) {
-                Path path = Paths.get("C:\\book\\" + exercise + ".output");
-                Stream<String> lines = Files.lines(path);
-                List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
-                Files.write(path, replaced);
-                lines.close();
+//                Path path = Paths.get("C:\\book\\" + exercise + ".output");
+//                Stream<String> lines = Files.lines(path);
+//                List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
+//                Files.write(path, replaced);
+//                lines.close();
                 str = readFile("C:\\book\\" + exercise + ".output");
                 return str;
             } else {
