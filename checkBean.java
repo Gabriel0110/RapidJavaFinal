@@ -34,12 +34,13 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class checkBean implements Serializable {
 
+    File inputFile;
     String inptText;
     boolean isCompile;
     boolean isAutoCheck;
     int ifdif;
     boolean autoCheck;
-    //Output output;
+    Output output;
     String content;
     String textArea;
     String resultBox;
@@ -88,6 +89,7 @@ public class checkBean implements Serializable {
         //String[] array = (String[]) chapterList.toArray();
 
         exerciseList = new ArrayList<>();
+        //setExerciseList("Chapter 01");
     }
 
     public String getChapter() {
@@ -126,7 +128,7 @@ public class checkBean implements Serializable {
 
     public void setExerciseList(String chapter) {
         exerciseList.clear();
-        File dir = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exercisedescription");
+        File dir = new File("C:\\ags10e\\exercisedescription");
         File[] directoryListing = dir.listFiles();
 
         if (directoryListing != null) {
@@ -164,8 +166,8 @@ public class checkBean implements Serializable {
         String ch = chapter.replaceAll("[a-zA-Z\\s]", "");
         String ex = exercise.substring(exercise.length() - 2, exercise.length()).replaceAll("[a-zA-Z\\s]", "");
 
-        File crctOutput = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + ".correctoutput");
-        File crctOutputA = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\exerciseworkarea\\" + exercise + "a" + ".correctoutput");
+        File crctOutput = new File("exerciseworkarea\\" + exercise + ".correctoutput");
+        File crctOutputA = new File("exerciseworkarea\\" + exercise + "a" + ".correctoutput");
 
 //        if (!crctOutput.exists() && !crctOutputA.exists()) {
 //            return "/* This exercise cannot be graded automatically becuase it may use random "
@@ -354,18 +356,23 @@ public class checkBean implements Serializable {
         createFile();
         File str = new File("C:\\book\\" + exercise + ".class");
         
-        // CHECK IF EXERCISE SELECTED HAS AN INPUT FILE, IF SO, USE THE LINE BELOW TO CREATE AN INPUT FILE, IF NOT, THEN DON'T
-        
-        File inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
-        createInputFile();
 
-        Output output = compileProgram("javac",
-                "C:\\book", exercise + ".java");
+        // CHECK IF EXERCISE SELECTED HAS AN INPUT FILE, IF SO, USE THE LINE BELOW TO CREATE AN INPUT FILE, IF NOT, THEN DON'T
+        if (!exercise.contains("Exercise01")) {
+            createInputFile();
+        }
+
+        if (str.exists()) {
+            str.delete();
+        }
+
+        output = compileProgram("javac",
+                "C:\\book", "C:\\book\\" + exercise + ".java");
         System.out.println(output.error);
         System.out.println("Result: " + output.output);
 
         if (str.exists()) {
-            if (inputFile.exists()) {
+            if (!exercise.contains("Exercise01")) {
                 if (isCompile == true) {
                     // RUN WITH INPUT //
                     output = executeProgram("java", exercise,
@@ -375,15 +382,23 @@ public class checkBean implements Serializable {
                 } else if (isAutoCheck == true) {
                     // RUN WITH INPUT //
                     output = executeProgram("java", exercise,
-                            "C:\\book", inputFile.toString(),
+                            "C:\\book", getInputText(),
                             "C:\\book\\" + exercise + ".output");
                     setTextArea(getOutputResults());
                 }
             } else {
-                // RUN WITHOUT INPUT //
-                output = executeProgram("java", exercise,
-                        "C:\\book", null, "C:\\book\\" + exercise + ".output");
-                setTextArea(getOutputResults());
+                if (isCompile == true) {
+                    // RUN WITHOUT INPUT //
+                    output = executeProgram("java", exercise,
+                            "C:\\book", null, "C:\\book\\" + exercise + ".output");
+                    setTextArea(getOutputResults());
+                } else if (isAutoCheck == true) {
+                    // RUN WITH INPUT //
+                    output = executeProgram("java", exercise,
+                            "C:\\book", null,
+                            "C:\\book\\" + exercise + ".output");
+                    setTextArea(getOutputResults());
+                }
             }
         } else {
             setTextArea(output.error);
@@ -393,11 +408,13 @@ public class checkBean implements Serializable {
     }
 
     public void createInputFile() throws IOException {
-        File file = new File("C:\\book\\" + exercise + ".input");
-        FileWriter fileWriter = new FileWriter(file);
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-        printWriter.print(inptText);
-        printWriter.close();
+        if (!exercise.contains("Exercise01")) {
+            File file = new File("C:\\book\\" + exercise + ".input");
+            FileWriter fileWriter = new FileWriter(file);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.print(inptText);
+            printWriter.close();
+        }
     }
 
     public void createFile() throws IOException {
@@ -501,7 +518,7 @@ public class checkBean implements Serializable {
     }
 
     public String getInputText() throws FileNotFoundException, IOException {
-        File inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
+        inputFile = new File("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
 
         if (inputFile.exists()) {
             String str = readFile("C:\\Users\\gabri\\Documents\\NetBeansProjects\\Tomberlin\\web\\gradeexercise\\" + exercise + "a.input");
@@ -514,15 +531,15 @@ public class checkBean implements Serializable {
     public String getOutputResults() throws FileNotFoundException, IOException {
         File outputFile = new File("C:\\book\\" + exercise + ".output");
         String str = "";
-        if (outputFile.exists()) {
-            
-
+        if (outputFile.exists() && !exercise.contains("Exercise01")) {
             if (textArea.contains("nextInt()")) {
                 Path path = Paths.get("C:\\book\\" + exercise + ".output");
                 Stream<String> lines = Files.lines(path);
                 List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
                 Files.write(path, replaced);
                 lines.close();
+                str = readFile("C:\\book\\" + exercise + ".output");
+                return str;
             } else {
                 if (inptText.contains(".")) {
                     Path path = Paths.get("C:\\book\\" + exercise + ".output");
@@ -530,30 +547,40 @@ public class checkBean implements Serializable {
                     List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + "\r\n")).collect(Collectors.toList());
                     Files.write(path, replaced);
                     lines.close();
+                    str = readFile("C:\\book\\" + exercise + ".output");
+                    return str;
                 } else {
                     Path path = Paths.get("C:\\book\\" + exercise + ".output");
                     Stream<String> lines = Files.lines(path);
                     List<String> replaced = lines.map(line -> line.replaceAll(": ", ": " + inptText + ".0" + "\r\n")).collect(Collectors.toList());
                     Files.write(path, replaced);
                     lines.close();
+                    str = readFile("C:\\book\\" + exercise + ".output");
+                    return str;
                 }
             }
 
         } else {
-            return "Cannot find class file.";
-        }
+            File classFile = new File("C:\\book\\" + exercise + ".class");
 
-        if (outputFile.exists()) {
-            str = readFile("C:\\book\\" + exercise + ".output");
-            File file = new File("C:\\book\\" + exercise + ".input");
-            FileWriter fileWriter = new FileWriter(file);
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            printWriter.print(str);
-            printWriter.close();
-            return str;
-        } else {
-            return "Cannot find class file.";
+            if (classFile.exists()) {
+                if (outputFile.exists()) {
+                    str = readFile("C:\\book\\" + exercise + ".output");
+//            File file = new File("C:\\book\\" + exercise + ".input");
+//            FileWriter fileWriter = new FileWriter(file);
+//            PrintWriter printWriter = new PrintWriter(fileWriter);
+//            printWriter.print(str);
+//            printWriter.close();
+                    return str;
+                } else {
+                    return output.error;
+                }
+            } else {
+                return output.error;
+            }
+
         }
+        //return output.error;
     }
 
     public String getCorrectOutput(File file) throws FileNotFoundException, IOException {
