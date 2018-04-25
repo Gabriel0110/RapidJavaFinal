@@ -100,14 +100,13 @@
                 editor.getSession().setMode("ace/mode/java");
                 editor.getSession().setTabSize(2);
                 
-                document.getElementById("editor2").value = #{checkBean.getInputText()}
-
                 editor.getSession().on('change', function () {
                     textarea.val(editor.getSession().getValue());
                 });
 
-                //document.getElementById("hiddenText").value = textarea.val(editor.getSession().getValue());
                 textarea.val(editor.getSession().getValue());
+                
+                document.getElementById("editor2").value = #{checkBean.getInputText()}
 
                 // Editor for result, just for display
                 var editorForResult = ace.edit("editorForResult");
