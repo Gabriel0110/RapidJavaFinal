@@ -1,8 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Rapid Java Development Final Project:  |  Exercise Program Grader
+ * 
+ * Professor and professional reference:  |  Dr. Y. Daniel Liang
+ * 
+ * Group Members:                         |  Gabriel Tomberlin, Brett Exley
+ * 
+ * Date of Completion:                    |  April 25, 2018
+ * 
+ * Contact E-mail:                        |  gabrieltomberlin14@gmail.com
  */
+
+
 package project02;
 
 import java.io.BufferedReader;
